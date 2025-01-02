@@ -84,7 +84,7 @@ const searchTrips = async (req, res, next) =>{
 
     var error = '';
     const{userId, search} = req.body;
-    console.log(req);
+    
     var _search = search.trim();
     const db = client.db();
     //search tripName, startDate, endDate, location, description

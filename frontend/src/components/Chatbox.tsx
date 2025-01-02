@@ -22,10 +22,10 @@ function Chatbox(props:any){
             });
             const txt = await response.text();
             const res = JSON.parse(txt);
-            console.log(res);
+            
             //res.candidates.content.parts.text
             await setMessage(message => res.candidates[0].content.parts[0].text);
-            console.log(res.candidates[0].content.parts[0].text)
+            //console.log(res.candidates[0].content.parts[0].text)
             console.log(message);
             
             //calls function to append message to chatbox
@@ -44,7 +44,6 @@ function Chatbox(props:any){
             ...messageList,
             {message: message}]); 
 
-        
 
     }
 
