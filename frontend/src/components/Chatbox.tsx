@@ -1,12 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { LOCALHOST_PORT } from "../config";
+import './tripAI.css';
 
 function Chatbox(props:any){
-    const [state, setState] = useState('');
+    
     const [message, setMessage] = useState('');
     const [messageList, setMessageList] = useState<any[]>([]);
 
     const [query, setQuery] = useState('');
+    const container = useRef<HTMLDivElement>(null);
+
+    
 
     async function queryAI(prompt:any) : Promise<void>{
         prompt.preventDefault()
@@ -14,7 +18,7 @@ function Chatbox(props:any){
         const obj = {query};
         const js = JSON.stringify(obj);
         console.log(js);
-
+        prompt.target.reset();
         try{
             
             const response = await fetch(LOCALHOST_PORT + '/api/ai/queryAI',{
@@ -48,33 +52,50 @@ function Chatbox(props:any){
     }
 
     function handleQueryChange(e: any): void{
-        setQuery(e.target.value);
+        if(e.key === "Enter"){
+            setQuery(e.target.value);
+            setMessageList([
+                ...messageList, 
+                {message: e.target.value}]);
+            console.log(messageList)
+        }
+    }
+
+
+    const Scroll = () =>{
+        const {offsetHeight, scrollHeight, scrollTop} = container.current as HTMLDivElement
+        if(scrollHeight <= scrollTop + offsetHeight + 100){
+            container.current?.scrollTo(0, scrollHeight);
+        }
     }
 
     useEffect(() =>{
         addAIResponse();
+        Scroll()
     },[message]);
+
+    
     
 
 
     //check for state changes
     return(
-        <div className="chatbox">
-            <form onSubmit={(e) =>{
-                queryAI(e)
-            }}>
+        <>
+            <div ref={container}className="chatbox">
                 {
-                    messageList.map((message, index: number) =>(
-                        <p key={index} className="ai-message">{message.message}</p>
-                    ))
+                        
+                        messageList.map((message, index: number) =>( index != 0 && message.message != "" ?
+                            <p key={index} className="ai-message">{message.message}</p>
+                            : index > 0 && message.message == "" ?(<p key={index} className="ai-message">Not a travel related prompt!</p>) : (<></>) ))
                 }
-                <input type="text"  onChange={handleQueryChange}></input>
+
+            </div>
+            <form onSubmit={(e) =>{
+                    queryAI(e)
+                }}>
+                    <input type="text"  onKeyDown={handleQueryChange}></input>
             </form>
-
-
-
-
-        </div>
+        </>
     )
 }
 
